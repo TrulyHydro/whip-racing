@@ -26,10 +26,6 @@ Optional: import `sql/tracks-data.sql` once to add the supplied tracks.
 
 > **Do not run `sql/install.sql` on a live server.** It is only for a manual fresh install and it deletes existing tracks and clears their records. You don't need it on WHIP.
 
-### Coming from hydro-racing
-
-If your server ran this resource under its old name, `hydro-racing`, the first start of `whip-racing` renames each old `hydro-racing_*` table to its `whip_racing_*` name, so tracks, records, profiles, daily progress, race history and crews carry over. The console prints one `carried ... over as ...` line per table. Remove the old `hydro-racing` folder so both don't run.
-
 ## 2. Configure
 
 Edit these two files, then restart `whip-racing`:
