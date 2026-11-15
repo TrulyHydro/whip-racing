@@ -1,0 +1,187 @@
+/* ============================================================================
+   Racing Case: the opening reel, in WHIP's look (whip_core's tokens, as whip-theme.css)
+
+   A night-glass panel over the scrim; slot tiles on a strip; the white selection line as the
+   marker; rarity as each tile's coloured foot. Sizes are in em off the screen height so it reads
+   the same at any resolution. CEF 103 safe.
+   ============================================================================ */
+
+.rc {
+    /* Rarity colours. Blue is WHIP's own accent; the rest sit beside it. */
+    --r-common:    rgba(255, 255, 255, 0.55);
+    --r-uncommon:  var(--ui-success, #4ade80);
+    --r-rare:      var(--ui-accent, #60a5fa);
+    --r-epic:      #c084fc;
+    --r-legendary: var(--ui-warning, #fbbf24);
+
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: grid;
+    place-items: center;
+    font-size: calc(100vh / 67.5);   /* 1em = 16px at 1080p */
+    font-family: var(--ui-font, 'Barlow', sans-serif);
+    color: var(--ui-text, rgba(255, 255, 255, 0.93));
+    background: var(--ui-scrim, rgba(10, 12, 18, 0.78));
+    pointer-events: none;
+    animation: rc-in 0.25s var(--ui-ease, ease-out);
+}
+.rc.out { opacity: 0; transition: opacity 0.4s ease; }
+@keyframes rc-in { from { opacity: 0; } }
+
+.r-common    { --r: var(--r-common); }
+.r-uncommon  { --r: var(--r-uncommon); }
+.r-rare      { --r: var(--r-rare); }
+.r-epic      { --r: var(--r-epic); }
+.r-legendary { --r: var(--r-legendary); }
+
+.rc-panel {
+    width: min(64em, 92vw);
+    padding: 1.6em 1.8em 1.8em;
+    background: var(--ui-panel-glow, none), var(--ui-surface-solid, rgb(10, 12, 18));
+    border: 1px solid var(--ui-border, rgba(255, 255, 255, 0.08));
+    border-radius: var(--ui-radius-panel, 20px);
+    box-shadow: var(--ui-shadow-modal, 0 20px 60px rgba(0, 0, 0, 0.6));
+    animation: rc-pop 0.3s var(--ui-ease, ease-out);
+}
+@keyframes rc-pop { from { transform: translateY(1em) scale(0.98); opacity: 0; } }
+
+.rc-head { margin-bottom: 1.1em; }
+.rc-head small {
+    display: block;
+    font-size: 0.75em;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ui-accent, #60a5fa);
+}
+.rc-head h2 {
+    margin: 0.1em 0 0;
+    font-family: var(--ui-font-display, 'Bricolage Grotesque', sans-serif);
+    font-weight: var(--ui-fw-display, 800);
+    font-size: 2em;
+    letter-spacing: -0.01em;
+}
+
+/* The window the strip slides through, fading out at both ends. */
+.rc-window {
+    position: relative;
+    overflow: hidden;
+    padding: 0.8em 0;
+    border-radius: var(--ui-radius-pop, 12px);
+    background: var(--ui-surface-subtle, rgba(255, 255, 255, 0.02));
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+}
+.rc-strip {
+    display: flex;
+    gap: 0.6em;
+    width: max-content;
+    padding: 0 0.6em;
+    will-change: transform;
+}
+
+.rc-tile {
+    position: relative;
+    flex: none;
+    width: 9em;
+    height: 10.5em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+    padding: 0.8em 0.6em 1.1em;
+    text-align: center;
+    background: var(--ui-slot-bg-filled, rgba(255, 255, 255, 0.07));
+    border: var(--ui-slot-line-w, 1px) solid var(--ui-slot-line-filled, rgba(255, 255, 255, 0.14));
+    border-radius: var(--ui-radius-row, 11px);
+    box-shadow: var(--ui-slot-lift, inset 0 1px 0 rgba(255, 255, 255, 0.06));
+    overflow: hidden;
+}
+/* The rarity foot. */
+.rc-tile::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 0.35em;
+    background: var(--r);
+}
+.rc-tile img { width: 5.2em; height: 5.2em; object-fit: contain; filter: var(--ui-item-shadow, drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5))); }
+.rc-tile img.none { visibility: hidden; }
+.rc-tile b {
+    max-width: 100%;
+    font-size: 0.95em;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.rc-tile .amt {
+    position: absolute;
+    top: 0.5em;
+    right: 0.6em;
+    font-size: 0.8em;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--r);
+}
+
+/* The prize, once landed: lit in its colour. */
+.rc-tile.won {
+    border-color: var(--r);
+    background: var(--ui-slot-bg-hover, rgba(255, 255, 255, 0.10));
+    box-shadow: 0 0 1.4em -0.2em var(--r), var(--ui-slot-lift, inset 0 1px 0 rgba(255, 255, 255, 0.06));
+    transition: box-shadow 0.3s, border-color 0.3s;
+}
+
+/* The marker: WHIP's white selection line, through the middle. */
+.rc-marker {
+    position: absolute;
+    top: 0.3em;
+    bottom: 0.3em;
+    left: 50%;
+    width: 3px;
+    transform: translateX(-50%);
+    border-radius: var(--ui-radius-hair, 2px);
+    background: var(--ui-pill, rgba(255, 255, 255, 0.93));
+    box-shadow: 0 0 0.8em rgba(255, 255, 255, 0.45);
+}
+
+/* What was won, under the reel. */
+.rc-result {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.7em;
+    min-height: 2.4em;
+    margin-top: 1.1em;
+    opacity: 0;
+}
+.rc-result.show { opacity: 1; transition: opacity 0.25s; }
+.rc-result small {
+    font-size: 0.8em;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ui-text-label, rgba(255, 255, 255, 0.48));
+}
+.rc-result b {
+    font-family: var(--ui-font-display, 'Bricolage Grotesque', sans-serif);
+    font-weight: var(--ui-fw-display, 800);
+    font-size: 1.8em;
+    color: var(--ui-text, #fff);
+}
+.rc-result .rar {
+    padding: 0.1em 0.55em;
+    font-size: 0.75em;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ui-pill-ink, rgb(10, 12, 18));
+    background: var(--r);
+    border-radius: var(--ui-radius-pill, 3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rc, .rc-panel { animation: none; }
+}

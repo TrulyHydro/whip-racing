@@ -145,10 +145,12 @@ Whip.register(function()
     -- The daily reward. (Unprefixed so Config.DailyRewards keeps working; the console notes it once.)
     Whip.core:RegisterItem('racing_case', {
         name     = 'Racing Case',
-        desc     = 'A daily racing reward.',
+        desc     = 'A daily racing reward. Use it to open it.',
         weight   = 1.5,
         type     = 'misc',
         stack    = false,
+        usable   = true,     -- server/cases.lua opens it
+        cooldown = 14,       -- seconds: one case at a time, while the reel plays
         image    = 'racing_case.png',
     })
 

@@ -176,6 +176,30 @@ Config.DailyRewards = {
     followUsDst = true, -- Apply US daylight saving time; false keeps a fixed offset
 }
 
+-- RACING CASE — what opening a racing_case can give
+--
+-- These are only the starting values. Owners and admins change them in game:
+-- /whip → Settings → WHIP Racing → Racing Case (shared/settings.lua), and a saved
+-- table there wins over this file.
+--
+-- Each row: item (an item key, as /whip → Economy → Items shows it), min/max (how
+-- many, picked at random between them), weight (its share of the chance: a row with
+-- weight 10 in a table weighing 100 in all comes up 10% of the time), rarity (the
+-- colour on the reel) and an optional label and image. `cash` is WHIP's banknotes.
+-- A row naming an item that doesn't exist is skipped, with a line in the console.
+Config.Case = {
+    enabled = true,
+    spinSeconds = 6,   -- how long the reel spins before it stops on the prize
+    contents = {
+        { item = 'cash',      min = 500,   max = 1500,  weight = 40, rarity = 'common',    label = 'Pocket money' },
+        { item = 'jerry_can', min = 1,     max = 1,     weight = 18, rarity = 'common' },
+        { item = 'cash',      min = 2500,  max = 5000,  weight = 20, rarity = 'uncommon',  label = 'Cash stack' },
+        { item = 'armour',    min = 1,     max = 2,     weight = 10, rarity = 'rare' },
+        { item = 'nitro',     min = 1,     max = 1,     weight = 8,  rarity = 'epic' },
+        { item = 'cash',      min = 15000, max = 25000, weight = 4,  rarity = 'legendary', label = 'Jackpot' },
+    },
+}
+
 -- ADMIN ITEM REWARDS — limits for each race
 Config.Rewards = {
     maxPositions = 20,

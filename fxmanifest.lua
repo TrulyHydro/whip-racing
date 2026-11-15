@@ -20,6 +20,7 @@ shared_scripts {
     '@whip_core/lib/satellite.lua',
     'shared/lib_shim.lua',
     'config/config.lua',
+    'shared/settings.lua',      -- the /whip → Settings page (the Racing Case table)
     'config/vehicle_classes.lua',
     'shared/vehicle_classes.lua',
     'shared/bridge.lua',
@@ -35,12 +36,14 @@ client_scripts {
     'client/ghost.lua',
     'client/creator.lua',
     'client/tablet.lua',
+    'client/case.lua',
     'client/main.lua',
 }
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
     'server/whip.lua',
+    'server/cases.lua',
     'server/profiles.lua',
     'server/crews.lua',
     'server/tracks.lua',
@@ -62,6 +65,8 @@ files {
     'web/tablet.js',
     'web/tablet.css',
     'web/whip-theme.css',
+    'web/case.css',
+    'web/case.js',
     'web/dui/index.html',
     'web/dui/style.css',
     'web/dui/main.js',

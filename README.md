@@ -128,6 +128,25 @@ Flares use the stock red effect; their smoke and flame colours are not configura
 - **Pink slips use WHIP's vehicles.** A racer can only stake a car they own and are sitting in. When the race ends, every staked car goes to the winner with a key. The loser's keys in their pockets are taken, but a key left in the ignition still works (that's how WHIP's transfer behaves).
 - Collision ghost modes and record replays are different settings. Keep the order of `Config.GhostModes` unchanged because the tablet uses the same order.
 
+### Racing Case
+
+Players open a Racing Case by using it: right-click → **Use** in the inventory (F2), or from the hotbar. A reel spins and stops on the prize, which is already in their pockets.
+
+**Choose what's in it in game:** `/whip` → Settings → **WHIP Racing** → **Racing Case** (permanent admins). Each row is one possible prize:
+
+| Column | Meaning |
+| --- | --- |
+| Item key | Any item, as `/whip` → Economy → Items shows it. `cash` is money |
+| Min / Max | How many: picked at random between the two |
+| Weight | Its share of the chance. Weights 40, 20 and 4 make the last one come up 4 times in 64 |
+| Rarity | The colour on the reel: common, uncommon, rare, epic, legendary |
+| Shown as | Optional name on the reel; empty uses the item's own name |
+| Picture | Only needed if the reel shows no picture for that item: `@resource/path.png` |
+
+Changes are live: the next case opened uses the new table. The page also has an on/off switch and the spin time. `Config.Case` in `config/config.lua` is only the starting table.
+
+How it's kept fair: the server picks the prize and gives it before anything is shown; the reel is only a show of a result already decided. If the prize doesn't fit in the player's pockets, nothing is given and they keep the case, with a message to make room. A row naming an item that doesn't exist is skipped (the console says which). One case can be opened at a time.
+
 ## 3. Open the tablet
 
 Use **`/racing`**. Players can assign a key under **Settings > Key Bindings > FiveM**.
