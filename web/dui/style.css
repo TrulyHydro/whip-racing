@@ -1,0 +1,113 @@
+/* Bold only. This page is a distance readout stretched onto a quad in the
+   world -- there is no body copy on it, and every gram of weight helps it read
+   at four hundred metres. */
+@font-face {
+    font-family: 'Rajdhani';
+    src: url('../fonts/rajdhani-700.woff2') format('woff2');
+    font-weight: 700;
+    font-display: block;
+}
+
+/* Palette mirrors web/style.css. Kept standalone because this page is rendered
+   to a texture on its own and never shares a document with the HUD. */
+:root {
+    --beam: #ffffff;
+    --accent: #60a5fa;         /* WHIP's Signal Blue (whip_core --ui-accent) */
+    --accent-light: #bfdbfe;
+}
+
+/* The active gate -- the one being chased -- burns teal. */
+.target { --beam: var(--accent); }
+.final { --beam: var(--accent-light); }
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+    width: 100vw;
+    height: 100vh;
+    background: transparent;
+    overflow: hidden;
+    font-family: 'Rajdhani', 'Segoe UI', system-ui, sans-serif;
+    font-weight: 700;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Everything is sized against the texture, never in absolute pixels. The page
+   is stretched onto a quad in the world, so a fixed px size means the readout
+   shrinks to nothing as the texture gets taller -- which is exactly what it
+   did. `vw` also guarantees the text can never overflow the texture width. */
+.readout {
+    flex: 0 0 auto;
+    width: 100%;
+    text-align: center;
+    padding-top: 2%;
+    /* The texture has no background, so the text needs its own contrast
+       against whatever the beam happens to be standing in front of. */
+    text-shadow: 0 0 0.18em rgba(0, 0, 0, 0.95), 0 0.04em 0.12em rgba(0, 0, 0, 0.9);
+}
+
+/* Distance carries the beam's colour, so the gate you are chasing reads teal
+   and the ones queued behind stay white. The label under it stays neutral. */
+.distance {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.03em;
+    line-height: 0.95;
+    white-space: nowrap;
+    color: var(--beam);
+}
+
+.distance b {
+    font-size: 26vw;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.distance em {
+    font-style: normal;
+    font-size: 11vw;
+    font-weight: 700;
+    opacity: 0.95;
+}
+
+.readout span {
+    display: block;
+    margin-top: 0.08em;
+    font-size: 7.5vw;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: #fff;
+}
+
+/* The column. `flex: 1` lets it take whatever is left, so the beam's length
+   follows the world size of the quad rather than being set here. */
+.beam {
+    position: relative;
+    flex: 1 1 auto;
+    width: 1.6%;
+    margin-top: 4%;
+    background: linear-gradient(180deg,
+        var(--beam) 0%,
+        var(--beam) 62%,
+        rgba(255, 255, 255, 0) 100%);
+}
+
+.cap {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 5.5vw;
+    height: 5.5vw;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: var(--beam);
+}

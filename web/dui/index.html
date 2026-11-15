@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Gate beam</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!--
+    Rendered to a texture and drawn into the world as a 3D scaleform, not shown
+    on screen. That is the whole point: it is issued in the same frame as the
+    world, so it cannot trail the camera the way a screen-space page does, and
+    it still gets real typography out of HTML.
+-->
+<div class="readout">
+    <div class="distance"><b id="distance">0</b><em>M</em></div>
+    <span id="label">Checkpoint</span>
+</div>
+
+<div class="beam"><i class="cap"></i></div>
+
+<script src="main.js"></script>
+</body>
+</html>

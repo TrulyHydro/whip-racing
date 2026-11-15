@@ -1,0 +1,296 @@
+/* ============================================================================
+   whip-racing in WHIP's house look
+   ============================================================================
+
+   Loaded LAST (index.html), after whip_core's own base.css and fonts.css, which give the
+   --ui-* tokens. style.css and tablet.css already read those tokens for colour; this file
+   changes the SHAPES to WHIP's language:
+
+     - night glass panels (--ui-surface-*) with the faint blue glow in the top-left corner
+     - Bricolage Grotesque titles, sentence case, no slant; Barlow for everything else
+     - "this one" is WHIP's near-white selection pill with dark ink (tabs, chips, primary buttons)
+     - the radius ladder: panel 20, popover 12, row 11, field 8, small 6/4
+     - no coloured edge stripes: state is the fill, not a border
+
+   CEF 103 safe (no :has, no nesting, no color-mix), as whip_core's own CSS is.
+   ============================================================================ */
+
+/* ------------------------------------------------------------- Shared type */
+
+body { font-family: var(--ui-font); }
+
+.ht-brand b,
+.ht-title h1,
+h2.title,
+.results-inner h2,
+.ht-modal h3,
+.ht-daily h3 {
+    font-family: var(--ui-font-display);
+    font-weight: var(--ui-fw-display);
+    text-transform: none;
+    letter-spacing: -0.01em;
+    transform: none;
+}
+
+/* Small overlines: WHIP's label colour, not the accent. */
+.ht-brand small,
+.ht-title small,
+.eyebrow,
+.ht-section-head h2,
+.ht-field > span,
+.field > span,
+.ht-stat small,
+.ht-table th,
+.ht-me small,
+.pot span {
+    color: var(--ui-text-label);
+    font-weight: var(--ui-fw-semibold);
+    letter-spacing: 0.12em;
+}
+
+/* ================================================================ Tablet */
+
+.ht { background: var(--ui-scrim); }
+
+.ht-frame {
+    background: var(--ui-panel-glow), var(--ui-surface-solid);
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius-panel);
+    box-shadow: var(--ui-shadow-modal);
+    animation: ht-pop 0.26s var(--ui-ease);
+}
+.ht-frame::before { display: none; }
+
+.ht-rail { background: var(--ui-surface-subtle); border-right: 1px solid var(--ui-border); }
+.ht-brand b { font-size: 1.75em; }
+
+/* Rail tabs: quiet rows; the open one is the pill. */
+.ht-nav {
+    border-left: 0;
+    border-radius: var(--ui-radius-row);
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: var(--ui-fw-semibold);
+    transition: background 0.15s var(--ui-ease), color 0.15s var(--ui-ease);
+}
+.ht-nav:hover { background: var(--ui-surface-hover); }
+.ht-nav.on { color: var(--ui-pill-ink); background: var(--ui-pill); }
+.ht-nav.on .ic { color: var(--ui-pill-ink); }
+.ht-nav .count { color: var(--ui-on-accent); background: var(--ui-accent); border-radius: var(--ui-radius-pill); }
+.ht-nav.on .count { color: var(--ui-pill); background: var(--ui-pill-ink); }
+
+.ht-me { border-top: 1px solid var(--ui-border); }
+.ht-me .live { color: var(--ui-accent); background: var(--ui-accent-subtle); border-radius: var(--ui-radius-sm); }
+
+.ht-top { border-bottom: 1px solid var(--ui-border); }
+.ht-title small { color: var(--ui-accent); }
+.ht-back { border-radius: 50%; background: var(--ui-surface-medium); }
+.ht-back:hover { background: var(--ui-surface-hover-strong); }
+.ht-close { border-radius: var(--ui-radius-row); border-color: var(--ui-border); letter-spacing: 0.04em; }
+.ht-close:hover { background: var(--ui-surface-hover); border-color: var(--ui-border-hover); }
+
+.ht-body { scrollbar-color: var(--ui-scrollbar-thumb) transparent; }
+.ht-body::-webkit-scrollbar { width: var(--ui-scrollbar-w-reach); }
+.ht-body::-webkit-scrollbar-thumb { background: var(--ui-scrollbar-thumb-reach); border-radius: var(--ui-radius-hair); }
+
+.ht-section-head h2 { font-size: 0.85em; }
+.ht-section-head .link { color: var(--ui-accent); text-transform: none; letter-spacing: 0; font-weight: var(--ui-fw-semibold); }
+
+/* Cards are slot tiles: a white wash, a hairline, a lift on top. */
+.ht-card {
+    background: var(--ui-slot-bg-filled);
+    border: var(--ui-slot-line-w) solid var(--ui-slot-line-filled);
+    border-radius: var(--ui-radius-row);
+    box-shadow: var(--ui-slot-lift);
+}
+button.ht-card:hover { background: var(--ui-slot-bg-hover); border-color: var(--ui-slot-line-hover); transform: none; }
+.ht-card .name { text-transform: none; letter-spacing: 0; font-weight: var(--ui-fw-bold); }
+.ht-card.accent { border-left: var(--ui-slot-line-w) solid var(--ui-slot-line-filled); background: var(--ui-accent-subtle); }
+.ht-card.hot { border-left: var(--ui-slot-line-w) solid var(--ui-slot-line-filled); }   /* its FEATURED tag says it */
+
+.ht-tag { border-radius: var(--ui-radius-pill); border-color: var(--ui-border-hover); letter-spacing: 0.08em; }
+.ht-tag.teal { color: var(--ui-on-accent); background: var(--ui-accent); border-color: var(--ui-accent); }
+.ht-tag.hot { color: var(--ui-pill-ink); background: var(--ui-warning); border-color: var(--ui-warning); }
+.ht-class, .ht-pos { border-radius: var(--ui-radius-xs); }
+
+.ht-empty { border: 1px dashed var(--ui-border-hover); border-radius: var(--ui-radius-row); color: var(--ui-text-mid); }
+.ht-error { color: var(--ui-error); }
+
+/* Buttons: a quiet wash; primary is the pill. */
+.ht-btn {
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: var(--ui-fw-semibold);
+    background: var(--ui-surface-medium);
+    border: 1px solid var(--ui-border) !important;
+    border-radius: var(--ui-radius-row);
+    transition: background 0.15s var(--ui-ease), color 0.15s var(--ui-ease);
+}
+.ht-btn:hover { background: var(--ui-surface-hover-strong); border-color: var(--ui-border-hover) !important; }
+.ht-btn.primary { color: var(--ui-pill-ink); background: var(--ui-pill); border-color: transparent !important; }
+.ht-btn.primary:hover { background: var(--ui-pill-hover); }
+.ht-btn.danger { color: var(--ui-error); background: var(--ui-error-subtle); }
+.ht-btn.danger:hover { color: #fff; background: var(--ui-error); border-color: transparent !important; }
+
+/* Fields: something you TYPE into is the 8px step. */
+.ht-input, .ht-select {
+    background: var(--ui-surface-light);
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius-slot);
+}
+.ht-input:focus, .ht-select:focus { border-color: var(--ui-accent); background: var(--ui-accent-subtle); }
+.ht-input::placeholder { color: var(--ui-text-dim); }
+.ht-select option { background: var(--ui-select-option-bg); color: var(--ui-select-option-fg); }
+
+.ht-chip {
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: var(--ui-fw-semibold);
+    background: var(--ui-surface-medium);
+    border: 1px solid var(--ui-border) !important;
+    border-radius: var(--ui-radius-row);
+}
+.ht-chip:hover { background: var(--ui-surface-hover-strong); }
+.ht-chip.on { color: var(--ui-pill-ink); background: var(--ui-pill); border-color: transparent !important; }
+
+.ht-toggle .sw { background: var(--ui-surface-hover-strong); }
+.ht-toggle.on .sw { background: var(--ui-accent); }
+
+.ht-stat {
+    background: var(--ui-slot-bg-filled);
+    border: var(--ui-slot-line-w) solid var(--ui-slot-line-filled);
+    border-top: var(--ui-slot-line-w) solid var(--ui-slot-line-filled);
+    border-radius: var(--ui-radius-row);
+    box-shadow: var(--ui-slot-lift);
+}
+.ht-stat b { font-family: var(--ui-mono); font-variant-numeric: tabular-nums; }
+
+.ht-table td { background: var(--ui-slot-bg); }
+.ht-table td:first-child { border-radius: var(--ui-radius-row) 0 0 var(--ui-radius-row); }
+.ht-table td:last-child { border-radius: 0 var(--ui-radius-row) var(--ui-radius-row) 0; }
+.ht-table tr.me td { background: var(--ui-accent-light); }
+.ht-table tr.click:hover td { background: var(--ui-surface-hover-strong); }
+
+.ht-daily {
+    background: var(--ui-panel-glow), var(--ui-slot-bg-filled);
+    border: var(--ui-slot-line-w) solid var(--ui-slot-line-filled);
+    border-radius: var(--ui-radius-row);
+}
+.ht-daily h3 { font-size: 1.25em; }
+.ht-bar { background: var(--ui-surface-hover-strong); border-radius: var(--ui-radius-hair); }
+.ht-bar i { background: var(--ui-accent); border-radius: var(--ui-radius-hair); }
+.ht-bar .tier { background: var(--ui-surface-solid); border-color: var(--ui-border-hover); border-radius: var(--ui-radius-hair); }
+.ht-bar .tier.reached { background: var(--ui-accent); border-color: var(--ui-accent); }
+.ht-bar .tier.done { background: var(--ui-success); border-color: var(--ui-success); }
+
+.ht-player { background: var(--ui-slot-bg-filled); border: var(--ui-slot-line-w) solid var(--ui-slot-line-filled); border-radius: var(--ui-radius-row); }
+.ht-player.me { background: var(--ui-accent-subtle); border-color: var(--ui-accent-medium); }
+
+.ht-modal { background: var(--ui-scrim); }
+.ht-modal .box {
+    background: var(--ui-panel-glow), var(--ui-surface-solid);
+    border: 1px solid var(--ui-border);
+    border-top: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius-pop);
+    box-shadow: var(--ui-shadow-modal);
+}
+
+.ht-toast {
+    background: var(--ui-surface-raised);
+    border: 1px solid var(--ui-border);
+    border-left: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius-pop);
+    box-shadow: var(--ui-shadow-lg);
+}
+.ht-toast.bad { background: var(--ui-surface-raised); color: var(--ui-error); }
+
+/* ======================================================== Old menu / results */
+
+.app, .results { background: var(--ui-scrim); }
+
+/* No bezel: the panel itself, as /whip and the inventory are. */
+.tablet {
+    padding: 0;
+    background: none;
+    border-radius: var(--ui-radius-panel);
+    box-shadow: var(--ui-shadow-modal);
+    animation-timing-function: var(--ui-ease);
+}
+.screen {
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius-panel);
+    background: var(--ui-panel-glow), var(--ui-surface-solid);
+}
+.screen-glow { display: none; }
+
+.nav-tab { border-radius: var(--ui-radius-row); }
+.nav-tab:hover { background: var(--ui-surface-hover); }
+.nav-tab.active { color: var(--ui-pill-ink); background: var(--ui-pill); }
+.nav-icon, .crumb-btn, .row-act, .tool { border-radius: var(--ui-radius-row); }
+.tool.active { color: var(--ui-pill-ink); background: var(--ui-pill); }
+
+.search { border-radius: var(--ui-radius-slot); background: var(--ui-surface-light); border-color: var(--ui-border); }
+.search:focus-within { border-color: var(--ui-accent); }
+input[type="text"], input[type="number"] {
+    border-radius: var(--ui-radius-slot);
+    background: var(--ui-surface-light);
+    border-color: var(--ui-border);
+}
+input:focus { border-color: var(--ui-accent); background: var(--ui-accent-subtle); }
+
+.row { border-radius: var(--ui-radius-row); }
+.row:hover { background: var(--ui-surface-hover); }
+.panel-card { border-radius: var(--ui-radius-row); background: var(--ui-slot-bg-filled); border-color: var(--ui-slot-line-filled); }
+.badge, .tag { border-radius: var(--ui-radius-pill); }
+
+.seg button { border-radius: var(--ui-radius-row); }
+.seg button.on { color: var(--ui-pill-ink); background: var(--ui-pill); }
+
+.btn { border-radius: var(--ui-radius-row); color: var(--ui-pill-ink); background: var(--ui-pill); }
+.btn:hover { background: var(--ui-pill-hover); }
+.btn:disabled { color: var(--ui-text-dim); background: var(--ui-surface-medium); }
+.btn.ghost { color: var(--ui-text-mid); background: var(--ui-surface-medium); }
+.btn.ghost:hover { color: var(--ui-text); background: var(--ui-surface-hover-strong); }
+.btn.danger { color: var(--ui-error); background: var(--ui-error-subtle); }
+.btn.danger:hover { background: var(--ui-error-light); }
+
+.roster li, .records li, .results-rows li { border-radius: var(--ui-radius-row); }
+.roster li.host { box-shadow: inset 0 0 0 1px var(--ui-accent-medium); }
+.pot { border-radius: var(--ui-radius-row); }
+.pot b, .stat b { font-family: var(--ui-mono); font-variant-numeric: tabular-nums; }
+.results-rows li.win { background: var(--ui-accent-light); }
+
+/* ===================================================================== HUD */
+
+/* The race HUD sits on the world: WHIP's chat glass, the dark rim on the words. */
+.standings li .pos,
+.standings li .nm,
+.standings li .gap,
+.sector,
+.clock,
+.pace-cell {
+    background: var(--ui-surface);
+    border-radius: var(--ui-radius-sm);
+    box-shadow: inset 0 0 0 1px var(--ui-border);
+    text-shadow: var(--ui-rim);
+}
+.standings li:first-child .pos { color: var(--ui-pill-ink); background: var(--ui-pill); box-shadow: none; text-shadow: none; }
+.standings li.you .nm { background: var(--ui-accent-medium); }
+.standings li .gap.ahead { background: var(--ui-error); }
+.standings li .gap.behind { background: var(--ui-success); color: var(--ui-pill-ink); text-shadow: none; }
+.lapline, .posline, .deltaline { text-shadow: var(--ui-shadow-text); }
+.lapline b, .posline b, .clock b, .sector b, .standings li .gap { font-variant-numeric: tabular-nums; }
+
+.countdown span {
+    font-family: var(--ui-font-display);
+    font-weight: var(--ui-fw-display);
+    color: var(--ui-text);
+    text-shadow: 0 0 60px var(--ui-accent-glow), var(--ui-shadow-text);
+}
+.countdown.go span {
+    background: none;
+    -webkit-background-clip: border-box;
+    background-clip: border-box;
+    color: var(--ui-accent);
+    text-shadow: 0 0 60px var(--ui-accent-medium), var(--ui-shadow-text);
+}

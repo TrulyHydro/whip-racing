@@ -1,0 +1,850 @@
+/* Racing tablet, WHIP look.
+ *
+ * The app itself is a compiled bundle (index.js / index.css) that is not
+ * edited. This file is loaded after it and decides how everything looks, so
+ * the whole tablet is restyled here. Every rule starts with #app so it wins
+ * over the bundle's own scoped styles without needing !important.
+ *
+ * The design matches the rest of the framework (hydro-core/web/theme.css):
+ * Rajdhani, flat dark surfaces, teal accent, pink for the few "hot" things,
+ * leaning uppercase headings, class-coloured badges, 4px corners.
+ *
+ * Sizes are in rem. The bundle sets 1rem = 1/67.5 of the screen height, so the
+ * tablet is the same proportion of the screen at any resolution.
+ */
+
+:root {
+    --accent: #2dd4bf;
+    --accent-hover: #5eead4;
+    --accent-light: #99f6e4;
+    --accent-soft: #5eead4;
+    --accent-mid: #14b8a6;
+    --accent-dark: #0f766e;
+    --on-accent: #0b1114;
+    --hot: #ff2e7e;
+
+    --bg: #0c0f14;
+    --rail: #090b0f;
+    --panel: #121720;
+    --surface: #1a212b;
+    --raised: #232c38;
+    --stroke: rgba(255, 255, 255, 0.09);
+    --stroke-strong: rgba(255, 255, 255, 0.2);
+    --screen-bg: #0c0f14;
+
+    --text: #ffffff;
+    --muted: rgba(255, 255, 255, 0.62);
+    --faint: rgba(255, 255, 255, 0.36);
+    --gain: #37c871;
+    --loss: #ef4444;
+
+    --class-d: #3ec1f3;
+    --class-c: #f7d038;
+    --class-b: #f58a1f;
+    --class-a: #e8323c;
+    --class-s: #b455e0;
+
+    --slant: -9deg;
+    --radius: 4px;
+    --font: Geist, 'Segoe UI', system-ui, sans-serif; /* the bundle maps Geist to Rajdhani */
+}
+
+/* ------------------------------------------------------------------ Frame */
+
+#app .kct-wrapper {
+    width: 108rem;
+    height: 60rem;
+    max-width: 96vw;
+    max-height: 94vh;
+    background: var(--bg);
+    border: 1px solid var(--stroke-strong);
+    border-top: 3px solid var(--accent);
+    border-radius: var(--radius);
+    box-shadow: 0 2rem 6rem rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+}
+
+/* A rail down the left, a slim strip across the top, the screen in the rest. */
+#app .app-wrapper.racing {
+    display: grid;
+    grid-template-columns: 16rem minmax(0, 1fr);
+    grid-template-rows: 4rem minmax(0, 1fr);
+    gap: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    isolation: isolate;
+}
+#app .app-wrapper.racing * { font-family: var(--font); text-shadow: none; }
+
+/* The header's two halves are placed straight onto that grid. */
+#app .whip-masthead { display: contents; }
+
+#app .whip-brand {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 1.6rem;
+    background: var(--rail);
+    border-right: 1px solid var(--stroke);
+}
+#app .whip-brand::before {
+    content: 'WHIP';
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.28em;
+    color: var(--accent);
+}
+#app .whip-brand strong {
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transform: skewX(var(--slant));
+    transform-origin: left bottom;
+}
+
+#app .whip-close,
+#app .tablet-leave-race {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+    justify-self: end;
+    z-index: 2;
+    height: 2.2rem;
+    padding: 0 0.9rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+#app .whip-close { margin-right: 1.6rem; color: var(--muted); background: none; border: 1px solid var(--stroke); }
+#app .whip-close span { margin-right: 0.6rem; color: var(--accent); }
+#app .whip-close:hover { color: var(--text); background: var(--raised); border-color: var(--stroke-strong); }
+
+/* Only while a race is running (index.html sets the attribute). */
+#app .tablet-leave-race { display: none; margin-right: 11.5rem; color: #ffb1b1; background: rgba(239, 68, 68, 0.12); border: 1px solid var(--loss); }
+body[data-race-active="true"] #app .tablet-leave-race { display: block; }
+#app .tablet-leave-race:hover { color: var(--text); background: var(--loss); }
+
+/* The strip itself: a hairline under the close button. */
+#app .app-wrapper.racing::before {
+    content: '';
+    grid-column: 2;
+    grid-row: 1;
+    border-bottom: 1px solid var(--stroke);
+    background: linear-gradient(90deg, rgba(45, 212, 191, 0.07), transparent 40%);
+}
+
+/* ------------------------------------------------------------------- Rail */
+
+#app .app-wrapper.racing > .nav-bar {
+    grid-column: 1;
+    grid-row: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.15rem;
+    width: auto;
+    height: auto;
+    min-height: 0;
+    margin: 0;
+    padding: 1rem 0 1rem;
+    background: var(--rail);
+    border: 0;
+    border-right: 1px solid var(--stroke);
+    border-radius: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+#app .nav-bar .nav-bar-item-wrapper { display: block; flex: none; padding: 0; border: 0; }
+
+#app .nav-bar .nav-bar-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.9rem;
+    width: 100%;
+    height: 3rem;
+    padding: 0 1.2rem 0 1.6rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--muted);
+    background: none;
+    border: 0;
+    border-radius: 0;
+    cursor: pointer;
+    transition: color 0.12s, background 0.12s;
+}
+#app .nav-bar .nav-bar-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    width: 4px;
+    background: var(--accent);
+    transform: skewY(-24deg) scaleY(0);
+    transition: transform 0.12s;
+}
+#app .nav-bar .nav-bar-item svg { display: block; flex: none; width: 1.15rem; height: 1.15rem; margin: 0; }
+#app .nav-bar .nav-bar-item svg path { fill: currentColor; }
+#app .nav-bar .nav-bar-item:hover { color: var(--text); background: rgba(255, 255, 255, 0.04); }
+#app .nav-bar .nav-bar-item.active { color: var(--text); background: linear-gradient(90deg, rgba(45, 212, 191, 0.16), transparent); }
+#app .nav-bar .nav-bar-item.active svg { color: var(--accent); }
+#app .nav-bar .nav-bar-item.active::before { transform: skewY(-24deg) scaleY(1); }
+
+/* ----------------------------------------------------------------- Screen */
+
+#app .app-wrapper.racing > .screen {
+    grid-column: 2;
+    grid-row: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 1.6rem;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    margin: 0;
+    padding: 2rem 2.2rem 2.2rem;
+    background: var(--bg);
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-mask: none;
+            mask: none;
+}
+#app .screen > * { flex-shrink: 0; }
+
+#app ::-webkit-scrollbar { width: 0.4rem; height: 0.4rem; }
+#app ::-webkit-scrollbar-track { background: transparent; }
+#app ::-webkit-scrollbar-thumb { background: var(--stroke-strong); border-radius: 2px; }
+
+/* Screen titles lean, the way the rest of the framework's do. */
+#app .screen .kct-title p,
+#app .whip-hero h1,
+#app .crews-view .row .part .title,
+#app .profile-top-bar .field .content {
+    margin: 0;
+    font-size: 2.6rem !important; /* the bundle sets its own with !important */
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    transform: skewX(var(--slant));
+    transform-origin: left bottom;
+}
+#app .screen .kct-title { padding: 0; border: 0; background: none; }
+
+#app .whip-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; padding: 0 0 1.4rem; border-bottom: 1px solid var(--stroke); }
+#app .whip-hero-copy::before { content: 'RACE CONTROL'; display: block; margin-bottom: 0.4rem; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.24em; color: var(--accent); }
+#app .whip-hero p { margin: 0.6rem 0 0; font-size: 1.05rem; line-height: 1.3; color: var(--muted); }
+#app .whip-hero-actions { display: flex; gap: 0.6rem; }
+
+/* Section headings inside a screen. */
+#app .active-races > .kct-title p,
+#app .last-races > p,
+#app .most-used > p,
+#app .tournaments-list > p,
+#app .map-preview > p,
+#app .section-caption {
+    margin: 0;
+    font-size: 0.9rem !important;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    transform: none;
+}
+
+/* Small label over a value: used everywhere in the app. */
+#app .field { gap: 0.15rem; min-width: 0; }
+#app .field .label { font-size: 0.8rem; font-weight: 600; line-height: 1.2; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+#app .field .label span { font-size: inherit; color: inherit; }
+#app .field .content { font-size: 1.2rem; font-weight: 700; line-height: 1.25; color: var(--text); overflow: hidden; text-overflow: ellipsis; }
+#app .part { gap: 0.7rem; align-items: center; }
+#app .part > svg { width: 1.1rem; height: 1.1rem; flex: none; color: var(--accent); }
+#app .part > svg path { fill: currentColor; }
+#app .border-bottom { border-bottom: 1px solid var(--stroke); }
+#app .dark { color: var(--muted); }
+#app .field.dark .content { color: var(--text); }
+
+/* ---------------------------------------------------------------- Buttons */
+
+#app .kct-button-wrapper { flex: none; }
+#app .kct-button,
+#app .whip-primary,
+#app .whip-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.5rem;
+    height: auto;
+    padding: 0 1.2rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--text);
+    background: var(--raised);
+    background-image: none;
+    border: 1px solid var(--stroke-strong);
+    border-radius: var(--radius);
+    box-shadow: none;
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+#app .kct-button svg { width: 0.95rem; height: 0.95rem; margin: 0; }
+#app .kct-button svg path { fill: currentColor; }
+#app .kct-button:hover,
+#app .whip-secondary:hover { background: #2d3847; border-color: var(--text); }
+#app .kct-button:focus-visible,
+#app .whip-primary:focus-visible,
+#app .whip-secondary:focus-visible,
+#app .nav-bar-item:focus-visible,
+#app .whip-close:focus-visible { outline: 2px solid var(--accent-hover); outline-offset: 2px; }
+
+#app .kct-button.small { min-height: 2rem; padding: 0 0.8rem; font-size: 0.8rem; }
+#app .kct-button.big { min-height: 2.7rem; padding: 0 1.3rem; }
+
+/* The one thing a row, form or dialog is for is teal. */
+#app .whip-primary,
+#app .kct-button.green,
+#app .buttons > .kct-button-wrapper:last-child > .kct-button:not(.red):not(.dark),
+#app .screen.tracks > .row .kct-button,
+#app .screen.tournaments > .row .kct-button,
+#app .crews-view .row .kct-button {
+    color: var(--on-accent);
+    background: var(--accent);
+    border-color: var(--accent);
+}
+#app .whip-primary:hover,
+#app .kct-button.green:hover,
+#app .buttons > .kct-button-wrapper:last-child > .kct-button:not(.red):not(.dark):hover,
+#app .screen.tracks > .row .kct-button:hover,
+#app .screen.tournaments > .row .kct-button:hover,
+#app .crews-view .row .kct-button:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+
+#app .kct-button.red { color: #ffb1b1; background: rgba(239, 68, 68, 0.1); border-color: var(--loss); }
+#app .kct-button.red:hover { color: var(--text); background: var(--loss); }
+#app .kct-button.dark { color: var(--muted); background: none; border-color: var(--stroke); }
+#app .kct-button.dark:hover { color: var(--text); border-color: var(--stroke-strong); background: var(--raised); }
+#app .kct-button.disabled,
+#app .kct-button:disabled { opacity: 0.4; pointer-events: none; }
+
+#app .buttons { gap: 0.6rem; align-items: center; }
+
+/* ----------------------------------------------------- Inputs, dropdowns */
+
+#app .kct-input,
+#app .dropdown-wrapper .dropdown-header {
+    min-height: 2.6rem;
+    padding: 0 0.9rem;
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--stroke-strong);
+    border-radius: var(--radius);
+    box-shadow: none;
+    transition: border-color 0.12s;
+}
+#app .kct-input.small { min-height: 2.4rem; padding: 0 0.8rem; }
+#app .kct-input input { height: 100%; min-height: 2.3rem; padding: 0; font-size: 1.1rem; font-weight: 600; color: var(--text); background: none; border: 0; outline: none; }
+#app .kct-input input::placeholder { color: var(--faint); }
+#app .kct-input svg { width: 1rem; height: 1rem; color: var(--faint); }
+#app .kct-input svg path { fill: currentColor; }
+#app .kct-input:focus-within,
+#app .dropdown-wrapper .dropdown-header:hover,
+#app .dropdown-wrapper.open .dropdown-header { border-color: var(--accent); }
+
+#app .dropdown-wrapper { min-width: 0; }
+#app .dropdown-wrapper .dropdown-header { gap: 0.8rem; cursor: pointer; }
+#app .dropdown-wrapper .dropdown-header .title,
+#app .dropdown-wrapper .dropdown-header .title p,
+#app .dropdown-wrapper .dropdown-header .title span { margin: 0; font-size: 1.05rem; font-weight: 600; letter-spacing: 0.02em; text-transform: none; color: var(--text); transform: none; }
+#app .dropdown-wrapper .dropdown-header svg { width: 0.9rem; height: 0.9rem; flex: none; color: var(--accent); }
+#app .dropdown-wrapper .dropdown-header svg path { fill: currentColor; }
+#app .dropdown-wrapper .dropdown-content {
+    top: calc(100% + 0.2rem);
+    max-height: 13rem;
+    padding: 0.3rem;
+    background: var(--surface);
+    border: 1px solid var(--stroke-strong) !important;
+    border-radius: var(--radius);
+    box-shadow: 0 0.8rem 2rem rgba(0, 0, 0, 0.55);
+    z-index: 30;
+}
+#app .dropdown-wrapper .dropdown-content span,
+#app .dropdown-wrapper .dropdown-content .item {
+    padding: 0.5rem 0.6rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--muted);
+    border: 0;
+    border-radius: 2px;
+    cursor: pointer;
+}
+#app .dropdown-wrapper .dropdown-content span:hover,
+#app .dropdown-wrapper .dropdown-content .item:hover { color: var(--text); background: var(--raised); }
+#app .dropdown-wrapper .dropdown-content .active,
+#app .dropdown-wrapper .dropdown-content .selected { color: var(--accent); }
+
+#app .kct-toggle { min-height: 2.6rem; padding: 0 0.9rem; font-size: 1.05rem; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--stroke); border-radius: var(--radius); --checkbox-size: 1.2rem; }
+#app .kct-checkbox { background: rgba(255, 255, 255, 0.12); border-color: transparent; }
+#app .kct-checkbox:checked { background: var(--accent-dark); border-color: var(--accent); }
+
+/* Date picker used for a race's start time. */
+#app .dp__main { --dp-background-color: var(--surface); --dp-text-color: #fff; --dp-border-color: rgba(255, 255, 255, 0.2); --dp-border-color-hover: #2dd4bf; --dp-border-color-focus: #2dd4bf; --dp-primary-color: #2dd4bf; --dp-primary-text-color: #0b1114; --dp-hover-color: #232c38; --dp-icon-color: #2dd4bf; --dp-menu-border-color: rgba(255, 255, 255, 0.2); --dp-border-radius: 4px; --dp-font-family: Geist, sans-serif; }
+#app .dp__input { min-height: 2.4rem; font-size: 1.05rem; font-weight: 600; color: var(--text); background: rgba(255, 255, 255, 0.05); border: 1px solid var(--stroke-strong); border-radius: var(--radius); }
+
+/* ----------------------------------------------------------------- Badges */
+/* Every small tag in the app is a "flare". Here they are leaning chips, and
+   the letter classes take the framework's class colours. */
+
+#app .racing-flare {
+    --c: var(--muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    height: 1.6rem;
+    padding: 0 0.7rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--c);
+    background: rgba(255, 255, 255, 0.05);
+    border: 0;
+    border-left: 3px solid var(--c);
+    border-radius: 2px;
+    box-shadow: none;
+    animation: none;
+    transform: skewX(var(--slant));
+}
+#app .racing-flare::before,
+#app .image-border::before,
+#app .season-player::before { content: none; }
+#app .racing-flare svg { width: 0.75rem; height: 0.75rem; margin: 0; }
+#app .racing-flare svg path { fill: currentColor; }
+
+#app .racing-flare.D { --c: var(--class-d); }
+#app .racing-flare.C { --c: var(--class-c); }
+#app .racing-flare.B { --c: var(--class-b); }
+#app .racing-flare.A { --c: var(--class-a); }
+#app .racing-flare.S { --c: var(--class-s); }
+#app .racing-flare.green,
+#app .racing-flare.turq { --c: var(--accent); }
+#app .racing-flare.gold { --c: var(--class-c); }
+#app .racing-flare.red,
+#app .racing-flare.rainbow-red { --c: var(--hot); }
+#app .racing-flare.dark { --c: var(--faint); }
+#app .flares { gap: 0.5rem; flex-wrap: wrap; }
+
+/* Finishing places: a block numeral, medal colours for the podium. */
+#app .racing-flare.pos {
+    --c: var(--text);
+    justify-content: center;
+    min-width: 3.4rem;
+    height: 2.4rem;
+    padding: 0 0.6rem;
+    font-size: 1.25rem;
+    letter-spacing: 0.02em;
+    color: var(--text);
+    background: var(--raised);
+    border-left: 0;
+}
+#app .racing-flare.pos.pos-1 { color: #0b0d10; background: var(--class-c); }
+#app .racing-flare.pos.pos-2 { color: #0b0d10; background: #cfd6de; }
+#app .racing-flare.pos.pos-3 { color: #0b0d10; background: var(--class-b); }
+
+#app .racing-flare.delta-elo { --c: var(--muted); height: 1.6rem; }
+
+/* Flares used as tabs (Hot / Popular / New, Tracks / Races). */
+#app .screens { display: flex; gap: 0.4rem; padding-bottom: 0; border-bottom: 1px solid var(--stroke); }
+#app .screens .racing-flare {
+    height: 2.5rem;
+    padding: 0 1.2rem;
+    font-size: 0.95rem;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+    background: none;
+    border-left: 0;
+    border-bottom: 3px solid transparent;
+    border-radius: 0;
+    transform: none;
+    cursor: pointer;
+    transition: color 0.12s, border-color 0.12s;
+}
+#app .screens .racing-flare:hover { color: var(--text); }
+#app .screens .racing-flare.rainbow-red { color: var(--text); border-bottom-color: var(--accent); }
+
+/* ------------------------------------------------------------------ Tiles */
+/* Short rows lean as a whole and straighten their contents back up; tall
+   cards stay square with one corner cut. */
+
+#app .tracks-list,
+#app .active-races-list,
+#app .season-players-list,
+#app .race-leaderboard-list,
+#app .last-races-list,
+#app .crews-list,
+#app .track-leaderboard,
+#app .racers-list,
+#app .profiles-list,
+#app .search-results {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 0.1rem 1rem 0.1rem 0.9rem;
+}
+
+#app .tracks-list .track,
+#app .active-race-thumbnail,
+#app .season-player,
+#app .last-race,
+#app .track-leaderboard-player,
+#app .race-player,
+#app .crews-list-item,
+#app .search-player,
+#app .crew-member,
+#app .crew-role {
+    position: relative;
+    width: auto;
+    margin: 0;
+    padding: 0.8rem 1.4rem;
+    background: var(--surface);
+    background-image: none;
+    border: 1px solid var(--stroke);
+    border-left: 4px solid transparent;
+    border-radius: var(--radius);
+    box-shadow: none;
+    transform: skewX(var(--slant));
+    transition: background 0.12s, border-color 0.12s;
+}
+#app .tracks-list .track > *,
+#app .active-race-thumbnail > *,
+#app .season-player > *,
+#app .last-race > *,
+#app .track-leaderboard-player > *,
+#app .race-player > *,
+#app .crews-list-item > *,
+#app .search-player > *,
+#app .crew-member > *,
+#app .crew-role > * { transform: skewX(calc(var(--slant) * -1)); }
+
+#app .tracks-list .track:hover,
+#app .active-race-thumbnail:hover,
+#app .season-player:hover,
+#app .last-race:hover,
+#app .crews-list-item:hover,
+#app .search-player:hover { background: #1f2834; border-left-color: var(--accent); }
+#app .active-race-thumbnail.active { border-left-color: var(--hot); }
+#app .season-player.pos-1 { border-left-color: var(--class-c); }
+/* Chips inside a leaning row already lean with it. */
+#app .season-player .racing-flare,
+#app .tracks-list .track .racing-flare,
+#app .active-race-thumbnail .racing-flare { transform: none; }
+
+/* Track rows: star, name, facts, then tags over buttons on the right. */
+#app .tracks-list .track { display: flex; align-items: center; gap: 1.6rem; min-height: 5.2rem; }
+#app .tracks-list .track .fav { flex: none; width: auto; cursor: pointer; color: var(--faint); }
+#app .tracks-list .track .fav svg { width: 1.2rem; height: 1.2rem; }
+#app .tracks-list .track .fav svg path { fill: currentColor; }
+#app .tracks-list .track .fav:hover,
+#app .tracks-list .track .fav.active { color: var(--class-c); }
+#app .tracks-list .track > .field { flex: 1 1 0; }
+#app .tracks-list .track > .fav + .field { flex: 2 1 0; }
+#app .tracks-list .track > .fav + .field .content { font-size: 1.45rem; letter-spacing: 0.02em; text-transform: uppercase; }
+#app .tracks-list .track > .col { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; width: auto; }
+#app .tracks-list .track > .col > div { display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; flex-wrap: wrap; }
+#app .tracks-list .track > .col.clickable .racing-flare { cursor: pointer; }
+
+/* Lobby rows on the races screen. */
+#app .active-race-thumbnail { display: flex; flex-direction: column; gap: 0.6rem; }
+#app .active-race-thumbnail .row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+#app .active-race-thumbnail .data { display: flex; align-items: center; gap: 1.6rem; }
+#app .active-race-thumbnail .data .field { flex: 1 1 0; }
+#app .active-race-thumbnail .data .field:first-child { flex: 2 1 0; }
+#app .active-race-thumbnail .data .field:first-child .content { font-size: 1.45rem; text-transform: uppercase; }
+#app .active-race-thumbnail .data .kct-button-wrapper { flex: none; width: auto; text-align: right; }
+
+/* Standings rows. */
+#app .season-player,
+#app .track-leaderboard-player,
+#app .race-player { display: flex; align-items: center; gap: 1.6rem; min-height: 4.2rem; }
+#app .season-player > .field { flex: 1 1 0; }
+#app .season-player > .field:nth-child(2) { flex: 2.4 1 0; }
+#app .season-player > .field:nth-child(2) .content { font-size: 1.35rem; text-transform: uppercase; }
+#app .season-player > div:not(.field):not(.racing-flare) { display: flex; align-items: center; gap: 2rem; flex: 1.6 1 0; justify-content: flex-end; }
+
+/* Recent races. */
+#app .last-races { display: flex; flex-direction: column; gap: 0.9rem; height: auto; min-height: 0; max-height: none; padding: 0; background: none; border: 0; border-radius: 0; box-shadow: none; }
+#app .last-races-list { max-height: 19rem; overflow-y: auto; }
+#app .last-race { display: flex; align-items: center; gap: 1.6rem; min-height: 3.6rem; padding: 0.5rem 1.4rem; }
+#app .last-race .field { flex: 1 1 0; }
+#app .last-race .field:first-child { flex: 2 1 0; }
+#app .last-race .kct-button-wrapper { flex: none; width: auto; }
+
+/* Tall cards: races and tracks on the overview. */
+#app .active-races,
+#app .home-tracks,
+#app .tournaments-list { display: flex; flex-direction: column; gap: 1rem; padding: 0; background: none; border: 0; border-radius: 0; box-shadow: none; }
+#app .active-races .races,
+#app .home-tracks .tracks,
+#app .tournaments-list .tournaments { display: grid; grid-template-columns: repeat(auto-fill, minmax(21rem, 1fr)); gap: 0.9rem; overflow: visible; }
+
+#app .active-race,
+#app .home-track {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    width: auto;
+    min-width: 0;
+    height: auto;
+    padding: 1.2rem 1.3rem 1.2rem;
+    background: var(--surface);
+    background-image: none;
+    border: 0;
+    border-top: 3px solid var(--accent);
+    border-radius: 0;
+    box-shadow: none;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 1.4rem), calc(100% - 1.4rem) 100%, 0 100%);
+    transition: background 0.12s;
+}
+#app .active-race:hover,
+#app .home-track:hover { background: #1f2834; }
+#app .active-race.D { border-top-color: var(--class-d); }
+#app .active-race.C { border-top-color: var(--class-c); }
+#app .active-race.B { border-top-color: var(--class-b); }
+#app .active-race.A { border-top-color: var(--class-a); }
+#app .active-race.S { border-top-color: var(--class-s); }
+
+#app .active-race > .field,
+#app .home-track > .field { padding-bottom: 0.7rem; }
+#app .active-race > .field .label,
+#app .home-track > .field .label { display: flex; justify-content: space-between; }
+#app .active-race > .field .content,
+#app .home-track > .field .content { font-size: 1.6rem; line-height: 1.05; letter-spacing: 0.02em; text-transform: uppercase; white-space: nowrap; }
+#app .active-race .col { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; padding-bottom: 0.7rem; }
+#app .active-race .part,
+#app .home-track .part { display: flex; padding-bottom: 0.7rem; }
+#app .active-race .col .part { padding-bottom: 0; }
+#app .active-race .part:not(.border-bottom),
+#app .home-track .part:not(.border-bottom) { padding-bottom: 0; }
+#app .active-race .buttons,
+#app .home-track .buttons { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding: 0.3rem 1.4rem 0 0; }
+#app .active-race .buttons > p { display: flex; align-items: center; gap: 0.4rem; margin: 0; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
+#app .active-race .buttons > p svg { width: 0.8rem; height: 0.8rem; }
+#app .active-race .buttons > p svg path { fill: currentColor; }
+/* Cards have one action each, so it is the teal one even though it is first. */
+#app .active-race .buttons .kct-button,
+#app .home-track .buttons .kct-button { color: var(--on-accent); background: var(--accent); border-color: var(--accent); }
+#app .active-race .buttons .kct-button:hover,
+#app .home-track .buttons .kct-button:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+
+#app .screen.home > .col { display: block; width: auto; max-width: none; }
+
+/* Stat tiles: a number with a coloured edge. */
+#app .grid-data,
+#app .race-tiles,
+#app .profile-data .cols { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.8rem; }
+#app .grid-item {
+    padding: 1rem 1.2rem;
+    background: var(--surface);
+    background-image: none;
+    border: 0;
+    border-left: 4px solid var(--stroke-strong);
+    border-radius: 0;
+    box-shadow: none;
+    transform: skewX(var(--slant));
+}
+#app .grid-item > * { transform: skewX(calc(var(--slant) * -1)); }
+#app .grid-item.gold { border-left-color: var(--class-c); }
+#app .grid-item.green,
+#app .grid-item.turq { border-left-color: var(--accent); }
+#app .grid-item.ranked { border-left-color: var(--hot); }
+#app .grid-item .content { font-size: 1.9rem; line-height: 1.1; white-space: nowrap; }
+#app .grid-data, #app .race-tiles { padding: 0 0.8rem; }
+
+/* ---------------------------------------------------------------- Screens */
+
+/* Rows that pair a title with buttons. */
+#app .screen > .row,
+#app .screen > .categories,
+#app .screen > .search-header,
+#app .crews-view > .row { display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem; padding-bottom: 1.2rem; border-bottom: 1px solid var(--stroke); }
+#app .screen > .categories .dropdown-wrapper { width: 12rem; }
+
+/* Tracks */
+#app .screen.tracks .filters { display: flex; gap: 0.6rem; }
+#app .screen.tracks .filters .kct-input { flex: 1; }
+#app .screen.tracks .filters .dropdown-wrapper { flex: none; width: 13rem; }
+#app .screen.tracks .tracks-list,
+#app .screen.races .active-races-list,
+#app .season-players-list,
+#app .race-leaderboard-list,
+#app .screen.admin .tracks-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+#app .screen.tracks, #app .screen.races, #app .screen.ranking, #app .screen.race, #app .screen.admin { overflow: hidden; }
+
+/* Track and profile headers. */
+#app .profile-top-bar { display: flex; align-items: flex-end; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; padding: 0 0 1.2rem; background: none; border: 0; border-bottom: 1px solid var(--stroke); border-radius: 0; }
+#app .profile-top-bar .part { display: flex; align-items: flex-end; gap: 1.2rem; flex-wrap: wrap; }
+#app .profile-top-bar .field .label { margin-bottom: 0.4rem; color: var(--accent); letter-spacing: 0.24em; }
+#app .profile-top-bar .field .content { overflow: visible; }
+#app .profile-top-bar .field .content span { font: inherit; letter-spacing: inherit; }
+#app .profile-top-bar .flares { display: flex; padding-bottom: 0.3rem; }
+/* One all-time standing period and no rating: nothing to choose or show. */
+#app .profile-top-bar > .dropdown-wrapper,
+#app .profile-top-bar .racing-flare.elo { display: none; }
+
+#app .track-data { display: flex; flex-direction: column; gap: 1.2rem; }
+
+/* Race */
+#app .screen.race .top-row { display: flex; align-items: center; gap: 1.5rem; padding-bottom: 1.2rem; border-bottom: 1px solid var(--stroke); }
+#app .screen.race .top-row p { display: flex; align-items: center; gap: 0.6rem; margin: 0; font-size: 1rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+#app .screen.race .top-row p svg { width: 1.1rem; height: 1.1rem; cursor: pointer; }
+#app .screen.race .top-row p svg path { fill: var(--accent); }
+#app .screen.race .top-row .right { display: flex; align-items: center; gap: 0.8rem; margin-left: auto; }
+#app .screen.race .top-row .right p.pos { color: var(--text); }
+
+/* Rankings */
+#app .season-leaderboard { display: flex; flex-direction: column; gap: 1rem; flex: 1 1 auto; min-height: 0; padding: 0; background: none; border: 0; }
+#app .season-info { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; padding: 1rem 1.4rem; background: var(--surface); border: 0; border-left: 4px solid var(--accent); border-radius: 0; box-shadow: none; }
+#app .season-info .col h3 { margin: 0; padding: 0; font-size: 1.7rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+#app .season-info .time-wrap { display: none; } /* all-time standings have no end date */
+#app .season-info .position-ind { display: flex; flex-direction: column; align-items: flex-end; gap: 0.1rem; font-size: 1.7rem; font-weight: 700; }
+#app .season-info .position-ind .dark { font-size: 0.8rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+#app .season-top-bar { display: flex; gap: 0.6rem; }
+#app .season-top-bar .col:first-child { flex: 0 1 26rem; }
+
+/* Find racers */
+#app .search-placeholder { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; padding: 3rem 0; border: 1px dashed var(--stroke-strong); border-radius: var(--radius); background: none; }
+#app .search-placeholder p { margin: 0; font-size: 1.3rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+#app .search-placeholder p.hint { font-size: 1rem; font-weight: 600; letter-spacing: 0.02em; text-transform: none; color: var(--muted); }
+
+/* Profile: a summary column beside the race log. */
+#app .screen.profile { gap: 1.6rem; }
+#app .driver-record { display: grid; grid-template-columns: 17rem minmax(0, 1fr); gap: 1.8rem; align-items: start; }
+#app .driver-summary { padding: 1.3rem 1.4rem; background: var(--surface); border: 0; border-top: 3px solid var(--accent); border-radius: 0; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 1.4rem), calc(100% - 1.4rem) 100%, 0 100%); }
+#app .driver-facts { display: flex; flex-direction: column; margin: 1rem 0 0; }
+#app .driver-fact { padding: 0.8rem 0; border-bottom: 1px solid var(--stroke); }
+#app .driver-fact:last-child { border-bottom: 0; padding-bottom: 0.4rem; }
+#app .driver-fact dt { margin: 0 0 0.2rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+#app .driver-fact dd { margin: 0; font-size: 1.4rem; font-weight: 700; line-height: 1.15; color: var(--text); overflow-wrap: anywhere; }
+#app .driver-fact:first-child dd { font-size: 3.6rem; line-height: 0.95; color: var(--accent); transform: skewX(var(--slant)); transform-origin: left bottom; }
+#app .driver-activity { display: flex; flex-direction: column; gap: 1.2rem; min-width: 0; }
+#app .record-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: 0; border: 0; }
+#app .record-heading p { margin: 0; font-size: 0.95rem; color: var(--muted); }
+#app .driver-activity .last-races > p { display: none; } /* the heading above already says it */
+#app .driver-usage { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.4rem; }
+#app .most-used { display: flex; flex-direction: column; gap: 0.7rem; padding: 0; background: none; border: 0; border-radius: 0; box-shadow: none; }
+#app .most-used .list { display: flex; flex-direction: column; gap: 0.5rem; }
+#app .most-used-car, #app .most-used-track { display: flex; align-items: center; gap: 1.2rem; padding: 0.7rem 1rem; background: var(--surface); border: 0; border-left: 4px solid var(--stroke-strong); border-radius: 0; }
+#app .most-used-car > *, #app .most-used-track > * { flex: 1 1 0; min-width: 0; }
+#app .most-used-car > div:not(.field), #app .most-used-track > div:not(.field) { display: flex; gap: 1.2rem; }
+
+/* Crews */
+#app .crews-view { display: flex; flex-direction: column; gap: 1.2rem; padding: 0; background: none; border: 0; border-radius: 0; box-shadow: none; }
+#app .crews-view .row .buttons { display: flex; align-items: center; }
+#app .crews-view .row .dropdown-wrapper { width: 11rem; }
+
+/* Settings */
+#app .screen > .field { display: flex; flex-direction: column; gap: 0.4rem; max-width: 46rem; }
+#app .screen > .col { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem 1.4rem; max-width: 46rem; }
+#app .screen > .col .field { display: flex; flex-direction: column; gap: 0.4rem; }
+#app .screen > .buttons { display: flex; justify-content: flex-start; max-width: 46rem; padding-top: 0.4rem; }
+
+/* Admin */
+#app .screen.admin > .tracks { display: flex; flex-direction: column; gap: 1rem; flex: 1 1 auto; min-height: 0; }
+
+/* ----------------------------------------------- Race and track creators */
+
+#app .creator { display: flex; flex-direction: column; gap: 1.4rem; flex: none; padding: 0; background: none; border: 0; border-radius: 0; box-shadow: none; }
+#app .creator > .cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.6rem; align-items: start; overflow: visible; }
+#app .creator.race-setup > .cols { display: flex; flex-direction: column; align-items: stretch; gap: 1.4rem; }
+#app .creator > .cols > * { width: auto; max-width: none; min-width: 0; }
+
+#app .map-preview { position: relative; display: flex; flex-direction: column; align-items: stretch; gap: 0.7rem; height: auto; min-height: 0; padding: 0; background: none; border: 0; border-radius: 0; overflow: hidden; }
+#app .map-preview .leaflet-container { flex: none; width: 100%; height: 26rem; background: #0a0d12; border: 1px solid var(--stroke-strong); border-radius: var(--radius); }
+#app .race-setup .map-preview { height: auto; }
+#app .race-setup .map-preview .leaflet-container { height: 14rem; }
+
+#app .creator .form { display: flex; flex-direction: column; gap: 1rem; max-height: none; margin: 0; padding: 0; overflow: visible; -webkit-mask: none; mask: none; }
+#app .creator.race-setup .form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem 1.4rem; }
+#app .creator .form > .field { display: flex; flex-direction: column; gap: 0.4rem; min-width: 0; padding: 0; border: 0; }
+#app .creator .form > .field > .content { overflow: visible; font-size: 1.05rem; font-weight: 600; }
+#app .creator.race-setup .form > .field:first-child { grid-column: 1 / -1; padding: 0.9rem 1.2rem; background: var(--surface); border-left: 4px solid var(--accent); }
+#app .creator.race-setup .form > .field:first-child .row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+#app .creator.race-setup .form > .field:first-child .row p { margin: 0; font-size: 1.6rem; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; transform: skewX(var(--slant)); transform-origin: left bottom; }
+#app .creator .form > .buttons,
+#app .creator .form > .error { grid-column: 1 / -1; }
+#app .creator .form > .buttons { display: flex; justify-content: flex-end; padding: 1rem 0 0; border-top: 1px solid var(--stroke); }
+#app .creator .form > .buttons .kct-button-wrapper:first-child { margin-right: auto; }
+#app .creator .form .error { color: var(--loss); font-size: 1rem; }
+#app .creator .form .position-rewards { display: flex; flex-direction: column; gap: 0.4rem; max-height: 12rem; overflow: auto; }
+#app .creator .form .checkpoints,
+#app .creator .form .props { max-height: 9rem; padding: 0.6rem 0.8rem; font-size: 1rem; color: var(--muted); background: rgba(255, 255, 255, 0.05); border: 1px solid var(--stroke); border-radius: var(--radius); overflow: auto; }
+
+/* ----------------------------------------------------------------- Modals */
+
+/* The bundle centres this box on the screen; it only needs the tablet's size. */
+#app .internal-modal-wrapper { width: 108rem; height: 60rem; max-width: 96vw; max-height: 94vh; z-index: 900; }
+#app .modal-wrapper { position: absolute; inset: 0; width: auto; height: auto; display: flex; align-items: center; justify-content: center; background: rgba(6, 8, 11, 0.78); border-radius: 0; }
+#app .modal-wrapper .modal {
+    min-width: 26rem;
+    max-width: 80vw;
+    max-height: 84vh;
+    padding: 1.6rem 1.8rem 1.8rem;
+    text-align: left;
+    color: var(--text);
+    background: var(--panel);
+    border: 1px solid var(--stroke-strong);
+    border-top: 3px solid var(--accent);
+    border-radius: var(--radius);
+    box-shadow: 0 2rem 5rem rgba(0, 0, 0, 0.7);
+    overflow: auto;
+}
+#app .modal-info { display: flex; flex-direction: column; gap: 1rem; width: auto; padding: 0; background: none; border: 0; }
+#app .modal-info .title,
+#app .modal-wrapper .modal .header { margin: 0; font-size: 1.9rem; font-weight: 700; line-height: 1; letter-spacing: 0.02em; text-transform: uppercase; text-align: left; transform: skewX(var(--slant)); transform-origin: left bottom; }
+#app .modal-info p { margin: 0; font-size: 1.05rem; line-height: 1.35; color: var(--muted); }
+#app .modal-info p.title { color: var(--text); }
+#app .modal-info .field { display: flex; flex-direction: column; gap: 0.4rem; }
+#app .modal-info .field .content { overflow: visible; font-weight: 600; }
+#app .modal-info .buttons { display: flex; justify-content: flex-end; gap: 0.6rem; padding-top: 0.4rem; }
+
+/* Tooltips. */
+.v-popper__popper .v-popper__inner { padding: 0.4rem 0.7rem; font-family: var(--font); font-size: 0.95rem; font-weight: 600; color: var(--text); background: var(--raised); border: 1px solid var(--stroke-strong); border-radius: var(--radius); }
+.v-popper__popper .v-popper__arrow-outer,
+.v-popper__popper .v-popper__arrow-inner { border-color: var(--raised); }
+#app .kct-button-wrapper .kct-tooltip { padding: 0.4rem 0.7rem; font-size: 0.9rem; font-weight: 600; letter-spacing: 0; text-transform: none; background: var(--raised); border: 1px solid var(--stroke-strong); border-radius: var(--radius); }
+
+#app .loading { min-height: 2rem; }
+
+@media (prefers-reduced-motion: reduce) {
+    #app .app-wrapper.racing * { transition: none !important; animation: none !important; }
+}

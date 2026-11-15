@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Racing</title>
+    <!-- DEV ONLY: index.html plus sample data. Not served in game. -->
+    <script src="./_mock.js"></script>
+    <style>html,body{background:#39424f}</style>
+    <script>
+      // The game injects GetParentResourceName into a resource's top-level NUI
+      // document only. This page is hosted in a frame, so it never receives one
+      // and the bundle throws on load.
+      //
+      // It matters more than it looks: the name builds every request URL *and*
+      // the locale URL (https://cfx-nui-<name>/locales/<lang>.json). Get it
+      // wrong and the page still boots -- the locale fetch is caught and
+      // swallowed -- but every label renders as its raw key.
+      //
+      // The parent document is the real NUI frame and is same-origin, so ask it
+      // rather than guessing. The address is only a fallback, because CEF does
+      // not reliably populate location.hostname for a custom scheme.
+      (function () {
+        // Only the name is skipped when one exists already; the request
+        // routing below is needed either way.
+        var given = typeof window.GetParentResourceName === 'function' ? window.GetParentResourceName() : '';
+
+        function fromParent() {
+          try {
+            if (window.parent && window.parent !== window &&
+                typeof window.parent.GetParentResourceName === 'function') {
+              return window.parent.GetParentResourceName();
+            }
+          } catch (e) { /* cross-origin, fall through */ }
+          return '';
+        }
+
+        function fromAddress() {
+          var href = window.location.href || '';
+          // nui://<resource>/... and https://cfx-nui-<resource>/...
+          var match = href.match(/^\w+:\/\/(?:cfx-nui-)?([^/:]+)/);
+          if (match && match[1]) return match[1];
+          return window.location.hostname || '';
+        }
+
+        var name = given || fromParent() || fromAddress() || 'whip-racing';
+        window.GetParentResourceName = function () { return name; };
+
+        // The bundle asks for its wording at https://cfx-nui-<name>/locales/..
+        // and that absolute address does not resolve on every build of the game
+        // ("Failed to fetch"). The same file is always reachable relative to
+        // this page, the way the bundle's own scripts and images load, so the
+        // request is pointed there instead.
+        //
+        // More than that: on GTA V Enhanced a request made from inside this
+        // frame fails outright ("Failed to fetch") -- the wording, every NUI
+        // callback, all of it -- while the same request from the resource's
+        // top-level page goes through. So requests are made with the parent
+        // page's fetch (same origin, so it is reachable), and only fall back to
+        // this frame's own when there is no parent, as in a normal browser.
+        var realFetch = window.fetch.bind(window);
+        var hostFetch = realFetch;
+        try {
+            if (window.parent && window.parent !== window && typeof window.parent.fetch === 'function') {
+                hostFetch = window.parent.fetch.bind(window.parent);
+            }
+        } catch (e) { /* not reachable: use our own */ }
+
+        var LOCALE = /^\w+:\/\/(?:cfx-nui-)?[^/]+\/locales\/([\w-]+)\.json$/;
+        window.fetch = function (input, init) {
+            var url = typeof input === 'string' ? input : (input && input.url) || '';
+            var match = url.match(LOCALE);
+            if (match) url = '../../locales/' + match[1] + '.json';
+            // Resolved against this page, not the parent, before handing it over.
+            var absolute = new URL(url, window.location.href).href;
+            if (hostFetch === realFetch) return realFetch(absolute, init);
+            return hostFetch(absolute, init).catch(function () { return realFetch(absolute, init); });
+        };
+
+        // Report what was resolved and whether the locale is actually
+        // reachable, so a wrong name shows up as a line in the console rather
+        // than as silently untranslated labels.
+        var localeUrl = '../../locales/en.json';
+        var report = function (ok, detail) {
+          try {
+            fetch('https://' + name + '/tablet:diagnostics', {
+              method: 'POST',
+              body: JSON.stringify({
+                resource: name,
+                via: fromParent() ? 'parent' : 'address',
+                href: window.location.href,
+                localeUrl: localeUrl,
+                localeOk: ok,
+                detail: detail || '',
+              }),
+            });
+          } catch (e) { /* nothing useful to do if even this fails */ }
+        };
+
+        fetch(localeUrl)
+          .then(function (r) {
+            if (!r.ok) return report(false, 'HTTP ' + r.status);
+            return r.json().then(function (j) {
+              report(!!(j && j.ui), j && j.ui ? 'ui object present' : 'no ui object');
+            });
+          })
+          .catch(function (e) { report(false, String(e)); });
+      })();
+    </script>
+    <script>
+      // Opening a screen from Lua.
+      //
+      // The interface's own protocol dispatches store actions and nothing
+      // else -- it never touches the router -- so there is no app event that
+      // means "show me this screen". Coming back from the world track editor
+      // needs exactly that, so it is handled here instead, on the app instance
+      // this page already owns.
+      //
+      // Retried briefly because the message can arrive while Vue is still
+      // mounting, and a missed navigation leaves the player looking at the
+      // wrong screen with no clue why.
+      // Errors inside the tablet only ever reached the F8 console, as a bare
+      // message with no hint of which screen threw it. They are sent to the
+      // server console instead, with the screen and where in the bundle, so
+      // a broken screen can be traced without a client log.
+      (function () {
+        var sent = 0;
+        function report(kind, error, where) {
+          if (sent++ > 20) return; // one bad screen should not flood the log
+          try {
+            var stack = (error && error.stack) ? String(error.stack).split('\n').slice(0, 4).join(' | ') : String(error);
+            fetch('https://' + GetParentResourceName() + '/tablet:error', {
+              method: 'POST',
+              body: JSON.stringify({ kind: kind, where: where || '', route: location.hash, error: stack.slice(0, 900) }),
+            }).catch(function () { /* the report itself failing must not raise another */ });
+          } catch (e) { /* nothing more to do */ }
+        }
+
+        window.addEventListener('error', function (event) { report('window', event.error || event.message); });
+        window.addEventListener('unhandledrejection', function (event) {
+          var reason = event.reason;
+          // A failed request already shows as its own error; not worth a report each.
+          if (reason && String(reason.message || reason).indexOf('Failed to fetch') !== -1) return;
+          report('promise', reason);
+        });
+
+        var tries = 0;
+        (function hook() {
+          var root = document.getElementById('app');
+          var app = root && root.__vue_app__;
+          if (!app) {
+            if (tries++ < 100) setTimeout(hook, 100);
+            return;
+          }
+          var previous = app.config.errorHandler;
+          app.config.errorHandler = function (error, instance, info) {
+            var component = instance && instance.$ && instance.$.type;
+            var label = component && (component.__name || component.name || component.__file) || '?';
+            report('vue', error, label + ' (' + info + ')');
+            if (previous) return previous(error, instance, info);
+            console.error(error);
+          };
+        })();
+      })();
+
+      window.addEventListener('message', function (event) {
+        var data = event.data;
+        if (data && data.event === 'raceActive') {
+          document.body.dataset.raceActive = data.active ? 'true' : 'false';
+          return;
+        }
+        if (!data || data.event !== 'navigate' || !data.path) return;
+
+        var attempts = 0;
+        (function go() {
+          var root = document.getElementById('app');
+          var app = root && root.__vue_app__;
+          var router = app && app.config.globalProperties.$router;
+
+          if (router) {
+            router.push(data.path).catch(function () {});
+            return;
+          }
+
+          if (attempts++ < 40) setTimeout(go, 50);
+        })();
+      });
+    </script>
+    <script type="module" crossorigin src="./assets/index.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index.css">
+    <link rel="stylesheet" href="./assets/tablet.css">
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+</html>

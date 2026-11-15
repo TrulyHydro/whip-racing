@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Racing</title>
+<!-- WHIP's own fonts and design tokens, straight from whip_core, so a WHIP theme reaches this page too. -->
+<link rel="stylesheet" href="https://cfx-nui-whip_core/html/css/fonts.css">
+<link rel="stylesheet" href="https://cfx-nui-whip_core/html/css/base.css">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="tablet.css">
+<link rel="stylesheet" href="whip-theme.css">
+</head>
+<body>
+
+<!-- Reusable glyphs. Everything else references these by id. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+        <symbol id="i-route" viewBox="0 0 24 24"><path d="M4 7h9a3 3 0 0 1 0 6H8a3 3 0 0 0 0 6h9"/><circle cx="4" cy="7" r="2"/><circle cx="20" cy="19" r="2"/></symbol>
+        <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4v1a4 4 0 0 0 3 3.9M17 6h3v1a4 4 0 0 1-3 3.9M9 20h6M12 14v6"/></symbol>
+        <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 5h11l-1.5 3L16 11H5"/></symbol>
+        <symbol id="i-loop" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2"/><path d="M20 4v5h-5"/></symbol>
+        <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+        <symbol id="i-map" viewBox="0 0 24 24"><path d="m9 4-6 3v13l6-3 6 3 6-3V4l-6 3z"/><path d="M9 4v13M15 7v13"/></symbol>
+        <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z"/></symbol>
+        <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+        <symbol id="i-car" viewBox="0 0 24 24"><path d="M4 16v2h3v-2M17 16v2h3v-2"/><path d="M3 16v-4l2-5h14l2 5v4z"/><circle cx="7.5" cy="14" r="1.2"/><circle cx="16.5" cy="14" r="1.2"/></symbol>
+        <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.4 8.2-8 9-4.6-.8-8-4-8-9V6z"/></symbol>
+        <symbol id="i-cash" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/></symbol>
+    </defs>
+</svg>
+
+<!-- ------------------------------------------------------------------ HUD -->
+<div id="hud" class="hud hidden">
+
+    <!-- One flowing column, so a full eight-racer grid pushes the timing
+         board down instead of colliding with it. -->
+    <div class="hud-left">
+        <ol class="standings" id="hudStandings"></ol>
+
+        <div class="timing">
+            <div class="sectors" id="hudSectors"></div>
+            <div class="clocks">
+                <div class="clock"><span>Best lap</span><b id="hudBest">00:00.00</b></div>
+                <div class="clock"><span>Current lap</span><b id="hudLapTime">00:00.00</b></div>
+                <div class="clock"><span>Total time</span><b id="hudTime">00:00.00</b></div>
+            </div>
+        </div>
+
+        <div class="hud-meta">
+            <div class="lapline">Lap <b id="hudLap">1</b><i id="hudLaps">/1</i></div>
+            <div class="posline">
+                <svg class="ic"><use href="#i-map"></use></svg>
+                <b id="hudProgress">0%</b>
+                <span>Pos</span><b id="hudPlace">1</b><i id="hudTotal">/1</i>
+            </div>
+            <div class="deltaline" id="hudDelta"></div>
+        </div>
+    </div>
+
+    <div class="pace" id="hudPace">
+        <div class="pace-cell now" id="paceNow"></div>
+        <div class="pace-cell next" id="paceNext"></div>
+    </div>
+
+</div>
+
+<div id="whipTablet" class="ht hidden"></div>
+
+<div id="countdown" class="countdown hidden"><span id="countdownValue">3</span></div>
+
+<!-- ----------------------------------------------------------------- Menu -->
+<div id="app" class="app hidden">
+    <div class="tablet">
+        <div class="screen">
+            <div class="screen-glow"></div>
+
+            <header class="nav">
+                <div class="nav-logo"><svg class="ic"><use href="#i-car"></use></svg></div>
+
+                <nav class="nav-tabs" id="tabs">
+                    <button class="nav-tab active" data-tab="tracks"><svg class="ic"><use href="#i-route"></use></svg>Tracks</button>
+                    <button class="nav-tab" data-tab="lobbies"><svg class="ic"><use href="#i-flag"></use></svg>Open races</button>
+                    <button class="nav-tab" data-tab="lobby"><svg class="ic"><use href="#i-trophy"></use></svg>Your lobby</button>
+                </nav>
+
+                <div class="nav-right">
+                    <button class="nav-icon" id="closeBtn" title="Close"><svg class="ic"><use href="#i-shield"></use></svg></button>
+                    <div class="nav-profile">
+                        <span class="nav-avatar"><svg class="ic"><use href="#i-cash"></use></svg></span>
+                        <div>
+                            <b id="profileName">Racer</b>
+                            <small id="walletLine">$0</small>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="screen-body">
+
+                <!-- Tracks -->
+                <section class="view" data-panel="tracks">
+                    <div class="toolbar">
+                        <label class="search">
+                            <svg class="ic"><use href="#i-search"></use></svg>
+                            <input id="trackSearch" type="text" placeholder="Search for a track...">
+                        </label>
+                        <div class="toolbar-actions">
+                            <button class="tool" id="trackSortName" title="Sort by name">abc</button>
+                            <button class="tool active" id="trackSortSize" title="Sort by checkpoints"><svg class="ic"><use href="#i-route"></use></svg></button>
+                        </div>
+                    </div>
+                    <div class="rows" id="trackList"></div>
+                </section>
+
+                <!-- Track detail -->
+                <section class="view hidden" data-panel="detail">
+                    <div class="crumbs">
+                        <button class="crumb-btn" id="detailClose" title="Close">&#10005;</button>
+                        <button class="crumb-btn" id="detailBack" title="Back">&#8592;</button>
+                        <span id="detailCrumb">Track</span>
+                    </div>
+                    <div class="detail-body" id="trackDetail"></div>
+                </section>
+
+                <!-- Open races -->
+                <section class="view hidden" data-panel="lobbies">
+                    <div class="rows" id="lobbyList"></div>
+                </section>
+
+                <!-- Your lobby -->
+                <section class="view hidden" data-panel="lobby">
+                    <div class="lobby-wrap" id="lobbyPanel"></div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+</div>
+
+<!-- ---------------------------------------------------------- Track editor -->
+<div id="creator" class="creator hidden" data-cursor="off" data-panel="on">
+
+    <div class="ed-strip">
+        <div class="ed-mark">
+            <svg class="ic"><use href="#i-route"></use></svg>
+            <div>
+                <span class="ed-kicker" id="edKicker">New track</span>
+                <h2>Track Editor</h2>
+            </div>
+        </div>
+
+        <div class="ed-modes" id="edModes">
+            <button data-mode="nodes" class="on">Nodes</button>
+            <button data-mode="props">Props</button>
+        </div>
+
+        <div class="ed-readout">
+            <div class="ed-stat"><span>Nodes</span><b id="edNodes">0</b></div>
+            <div class="ed-stat"><span>Props</span><b id="edPropCount">0</b></div>
+            <div class="ed-stat"><span>Length</span><b id="edLength">0 m</b></div>
+            <div class="ed-stat"><span>Shape</span><b id="edShape">Sprint</b></div>
+            <div class="ed-stat"><span>Speed</span><b id="edSpeed">0</b><i>mph</i></div>
+        </div>
+
+        <button class="ed-mode" id="edMode" data-mode="drive">
+            <span class="ed-dot"></span>
+            <span class="ed-mode-text">Drive</span>
+            <em>L-ALT</em>
+        </button>
+    </div>
+
+    <aside class="ed-rail">
+        <header>
+            <span id="edRailTitle">Route nodes</span>
+            <button class="ed-chip" id="edCollapse" title="Hide panel (F1)">F1</button>
+        </header>
+
+        <!-- Model picker, prop mode only -->
+        <div class="ed-picker hidden" id="edPicker">
+            <div class="ed-picker-head">
+                <span>Model</span>
+                <span class="ed-rot">Yaw <b id="edRotation">0&deg;</b></span>
+            </div>
+            <div class="ed-picker-list" id="edCatalogue"></div>
+
+            <div class="ed-picker-head" style="margin-top:12px">
+                <span>Placement</span>
+                <span class="ed-rot">Gap <b id="edSpacingValue">10.0 m</b></span>
+            </div>
+            <div class="seg" id="edPlacement">
+                <button data-place="single" class="on">Single</button>
+                <button data-place="pair">Pair</button>
+            </div>
+            <input type="range" id="edSpacing" class="ed-range" min="2" max="60" step="0.5" value="10">
+        </div>
+
+        <div class="ed-nodes" id="creatorPoints"></div>
+
+        <footer>
+            <button class="ed-act" id="edDrop"><b>E</b> <span id="edDropLabel">Drop node</span></button>
+            <button class="ed-act ghost" id="edUndo"><b>&#9003;</b> Undo</button>
+        </footer>
+
+        <!-- Finishing hands the route to the tablet, which owns the name, the
+             shape and whether it is public. Leaving discards it. Both are on
+             keys as well; they are here so they can be found without knowing
+             that. -->
+        <footer class="ed-exit">
+            <button class="ed-act" id="edFinish"><b>&crarr;</b> Done</button>
+            <button class="ed-act ghost" id="edQuit">Discard</button>
+        </footer>
+    </aside>
+
+    <section class="ed-radar">
+        <div class="ed-radar-head"><span>Route map</span><b id="edStreet">&mdash;</b></div>
+        <canvas id="edMap" width="460" height="460"></canvas>
+        <div class="ed-radar-foot">
+            <span id="edCoords">0.0, 0.0, 0.0</span>
+            <span id="edSelInfo">No node selected</span>
+        </div>
+    </section>
+
+    <div class="ed-hints" id="edHints"></div>
+
+
+    <button class="ed-reveal hidden" id="edReveal">F1 &middot; Show editor</button>
+</div>
+
+<!-- -------------------------------------------------------------- Results -->
+<div id="results" class="results hidden">
+    <div class="tablet narrow">
+        <div class="screen">
+            <div class="screen-glow"></div>
+            <div class="results-inner">
+                <p class="eyebrow" id="resultsTrack">Track</p>
+                <h2>Race results</h2>
+                <ol class="results-rows" id="resultsRows"></ol>
+                <div class="results-slips hidden" id="resultsSlips"></div>
+                <button class="btn" id="resultsClose">Done</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="tablet.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
